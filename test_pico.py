@@ -49,7 +49,7 @@ maxPreTriggerSamples = buffer_size*0.1
 maxPostTriggerSamples = buffer_size*0.9
 autoStop = False # Streaming will continue until stopped by ps5000aStop, else a flag that specifies if the streaming should stop when all of maxSamples = maxPreTriggerSamples + maxPostTriggerSamples have been captured and a trigger event has occurred
 downSampleRatio = 1 # just value of n (look description of the next line)
-downSampleRatioMode =  # possible values : PS5000A_RATIO_MODE_NONE : Returns raw data values; PS5000A_RATIO_MODE_AGGREGATE :  Reduces every block of n values to just min and max in two buffers; PS5000A_RATIO_MODE_DECIMATE : Reduces every block of n values to just the first value in the block; PS5000A_RATIO_MODE_AVERAGE : Reduces every block of n values to arithmetic mean of all the values
+downSampleRatioMode =  ps.PS5000A_RATIO_MODE['PS5000A_RATIO_MODE_NONE'] # possible values : PS5000A_RATIO_MODE_NONE : Returns raw data values; PS5000A_RATIO_MODE_AGGREGATE :  Reduces every block of n values to just min and max in two buffers; PS5000A_RATIO_MODE_DECIMATE : Reduces every block of n values to just the first value in the block; PS5000A_RATIO_MODE_AVERAGE : Reduces every block of n values to arithmetic mean of all the values
 overviewBufferSize = buffer_size
 status['StartStreaming'] = ps.ps5000aRunStreaming(chandle, ctypes.byref(sampleInterval), sampleIntervalTimeUnits, maxPreTriggerSamples, maxPostTriggerSamples, autoStop, downSampleRatio, downSampleRatioMode, overviewBufferSize)
 assert_pico_ok(status['StartStreaming'])

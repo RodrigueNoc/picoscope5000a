@@ -85,7 +85,7 @@ plt.ylabel("Voltage (mV)")
 
 def streaming_callback(handle, noOfSamples, startIndex, overflow, triggerAt, triggered, autoStop, Parameter):
     """
-    the device identifier returned by ps5000aOpenUnit
+    handle : the device identifier returned by ps5000aOpenUnit
     noOfSamples : the number of samples to collect
     startIndex : an index to the first valid sample in the buffer passed in ps5000aSetDataBuffer
     overflow : returns a set of flags that indicate whether an overvoltage has occurred on any of the channels. It is a bit pattern with bit 0 denoting Channel A.

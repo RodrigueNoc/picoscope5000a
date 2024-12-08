@@ -38,7 +38,7 @@ class Picoscope():
         )
         assert_pico_ok(self.status['OpenUnit'])
 
-    def Channel(
+    def SetChannel(
             self,
             Cha="A",
             channel_enabled=1,
@@ -90,7 +90,7 @@ class Picoscope():
     def SetTrigger(
             self,
             trigger_enabled=1,
-            seuil=1000,
+            seuil=-100,
             direction="FALLING",
             trigger_delay=0,
             trigger_autoTrigger_ms=0
@@ -131,8 +131,8 @@ class Picoscope():
             mode="NONE",
             Ratio=1,
             autoStop=0,
-            intervale=1,
-            unite='NS'
+            intervale=50,
+            unite='US'
     ):
         """
         Fonction qui commence l'acquisition de données
@@ -186,6 +186,56 @@ class Picoscope():
             self.buffer_size
         )
         assert_pico_ok(self.status['StartStreaming'])
+
+    def GetStreamingLatestValues(self):
+        """
+        
+        """
+        def streaming_callback(
+                handle, 
+                noOfSamples, 
+                startIndex, 
+                overflow, 
+                triggerAt, 
+                triggered, 
+                autoStop, 
+                Parameter
+        ):
+            """
+            handle : argument passer dans ps5000aGetStreamingLatestValues
+            noOfSamples : nombres de données collectées
+            startIndex : indexe où est la première meusure valide dans le
+                buffer passer dans ps5000aSetDataBuffer
+            overflow : retourne une liste indexer sur les voies du picoscope
+                indiquant si on depasse la gamme de voltage
+            triggerAt : index où se trouve le trigger
+            triggered : indique si il y a un trigger
+            autoStop :  variable passer dans ps5000aRunStreaming
+            Parameter : paramètre passer dans ps5000aGetStreamingLatestValues
+
+            autoStop = False => buffer is use as FIFO memory
+            """
+            self.wasCalledBack = True
+            y_adc = np.zeros(self.buffer_size)
+            if triggered:
+                y_adc[:] = self.buffer_data[:]
+                self.y_mV = adc2mV(
+                    y_adc, 
+                    self.ps_channel_range, 
+                    self.maxADC
+                )
+
+        self.wasCalledBack = False
+        self.MAX_ADC()
+        cPointerFunc = ps.StreamingReadyType(streaming_callback)
+        pParameter = None
+        self.y_mV = []
+
+        self.status['GetStreamingLatestValues'] = ps.ps5000aGetStreamingLatestValues(
+            self.handle,
+            cPointerFunc, 
+            pParameter
+        )
 
     def StopStreaming(self):
         """

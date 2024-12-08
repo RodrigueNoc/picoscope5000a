@@ -1,31 +1,26 @@
-import ctypes
-from picosdk.ps5000a import ps5000a as ps
-from picosdk.functions import assert_pico_ok
 import time
+import numpy as np
 
-# Setup
-status = {}
-chandle = ctypes.c_int16()
+import picoscope as ps
 
-# Open the device
-status["openUnit"] = ps.ps5000aOpenUnit(ctypes.byref(chandle), None, 1)
+Pico = ps.Picoscope()
 
-try:
-    assert_pico_ok(status["openUnit"])
-except: # PicoNotOkError:
-    powerStatus = status["openUnit"]
-    if powerStatus == 286:
-        status["changePowerSource"] = ps.ps5000aChangePowerSource(chandle, powerStatus)
-    elif powerStatus == 282:
-        status["changePowerSource"] = ps.ps5000aChangePowerSource(chandle, powerStatus)
+# Initialisation
+Pico.StartPico()
+Pico.SetChannel('A',1,"DC","2V",0.)
+Pico.SetTrigger(1,-100,"FALLING",0,0)
+Pico.StartStreaming(10000,"NONE",1,0,50,'US')
+
+# 
+RUN = True
+while RUN:
+    Pico.GetStreamingLatestValues()
+    if not Pico.wasCalledBack():
+        time.sleep(0.01)
     else:
-        raise
-    assert_pico_ok(status["changePowerSource"])
+        Y = Pico.y_mV
+        X = np.linspace(0, Pico.buffer_size*Pico.sampleInterval.value, Pico.buffer_size)
 
-# Closes the unit
-# Handle = chandle
-status["close"] = ps.ps5000aCloseUnit(chandle)
-assert_pico_ok(status["close"])
-
-# Displays the status returns
-print(status)
+# Stop
+Pico.StopStreaming()
+Pico.StopPico()

@@ -1,7 +1,6 @@
 import ctypes
 from picosdk.ps5000a import ps5000a as ps
 from picosdk.functions import assert_pico_ok
-from SigGen import GenSin
 import time
 
 # Setup
@@ -22,9 +21,6 @@ except: # PicoNotOkError:
     else:
         raise
     assert_pico_ok(status["changePowerSource"])
-
-GenSin(status,chandle)
-time.sleep(5)
 
 # Closes the unit
 # Handle = chandle

@@ -1,5 +1,6 @@
 import time
 import numpy as np
+import matplotlib.pyplot as plt
 
 import picoscope as ps
 
@@ -14,6 +15,15 @@ Pico.SetTrigger(1,-100,"FALLING",0,0)
 Pico.StartStreaming(10000,"NONE",1,0,50,'US')
 
 # Get values
+X = []
+Y = []
+plt.ion()
+figure, ax = plt.subplots(figsize=(10, 8))
+line1, = ax.plot(X, Y)
+plt.title("Signal")
+plt.xlabel(f"Time ({Pico.sampleIntervalTimeUnits})")
+plt.ylabel("Voltage (mV)")
+
 RUN = True
 while RUN:
     Pico.GetStreamingLatestValues()
@@ -22,6 +32,10 @@ while RUN:
     else:
         Y = Pico.y_mV
         X = np.linspace(0, Pico.buffer_size*Pico.sampleInterval.value, Pico.buffer_size)
+        line1.set_ydata(Y)
+        line1.set_xdata(X)
+        figure.canvas.draw()
+        figure.canvas.flush_events()
 
 # Stop Streaming
 Pico.StopStreaming()
